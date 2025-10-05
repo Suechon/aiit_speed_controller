@@ -264,6 +264,16 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const bmac = document.getElementById('bmac');
+    if (bmac) {
+        bmac.addEventListener('click', (e) => {
+            e.preventDefault();
+            chrome.tabs.create({ url: bmac.href });
+        });
+    }
+});
+
 function setStatus(message = "") {
     const id = "__speed_status_msg";
     let el = document.getElementById(id);

@@ -42,3 +42,10 @@ AIIT講義などの学習支援を目的としており、商用配布・課金�
 ## ポリシー
 この拡張は ユーザーの個人情報や閲覧データを一切収集しません。
 利用者が明示的に操作したページ内で、動画再生速度を変更するための最小限のコードのみ実行します。
+
+
+## Buy me a Coffee
+* コーヒー1杯分から寄付ができるサービスです。気が向いたらお願いいたします。
+ <a id="bmac" href="https://www.buymeacoffee.com/suechan"><img
+                src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee💛&emoji=&slug=suechan&button_colour=FFDD00&font_colour=000000&font_family=Arial&outline_colour=000000&coffee_colour=ffffff"
+                style="max-width: 200px; height: auto; margin-top: 10px;" /></a>

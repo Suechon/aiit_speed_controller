@@ -41,8 +41,8 @@
         body {
             margin: 0;
             padding: 12px 12px 14px;
-            min-width: 300px;
-            max-width: 360px;
+            min-width: 370px;
+            max-width: 400px;
             background: var(--bg);
             color: var(--text);
             font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", Meiryo, sans-serif;
@@ -149,7 +149,7 @@
         }
 
         input[type="number"] {
-            width: 100%;
+            width: 80%;
             padding: 10px 12px;
             border-radius: 10px;
             border: 1px solid var(--border);
@@ -229,7 +229,7 @@
         </div>
 
         <div class="row">
-            <input id="manual" type="number" step="0.01" min="0.1" max="16" placeholder="任意倍速（例: 0.7 / 2.25 / 8）">
+            <input id="manual" type="number" step="0.01" min="0.1" max="6" placeholder="任意倍速（例: 0.7 / 2.25 / 8）">
             <button id="apply" class="ghost">適用</button>
         </div>
 
@@ -237,7 +237,12 @@
             <span class="ok">ヒント:</span>
             <span class="kbd">↑</span>/<span class="kbd">↓</span> で ±、<span class="kbd">0</span> で 1.0 に戻せます。
         </div>
+        <a id="bmac" href="https://www.buymeacoffee.com/suechan"><img
+                src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee💛&emoji=&slug=suechan&button_colour=FFDD00&font_colour=000000&font_family=Arial&outline_colour=000000&coffee_colour=ffffff"
+                style="max-width: 200px; height: auto; margin-top: 10px;" /></a>
+
     </div>
+
 
     <script src="popup.js"></script>
 </body>
