@@ -1,0 +1,245 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>AIIT Speed</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        :root {
+            --bg: #0f1115;
+            --panel: #151821;
+            --text: #eaeef9;
+            --muted: #a4acc4;
+            --accent: #6ea8fe;
+            --accent-weak: #2b68ea;
+            --chip: #22283a;
+            --chip-hover: #2a3250;
+            --border: #2a2f42;
+            --ok: #21c17a;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg: #f7f9ff;
+                --panel: #ffffff;
+                --text: #0b1220;
+                --muted: #506080;
+                --accent: #2563eb;
+                --accent-weak: #1d4ed8;
+                --chip: #eef2ff;
+                --chip-hover: #e0e7ff;
+                --border: #e5e7eb;
+                --ok: #16a34a;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 12px 12px 14px;
+            min-width: 300px;
+            max-width: 360px;
+            background: var(--bg);
+            color: var(--text);
+            font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", Meiryo, sans-serif;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .08);
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .title {
+            font-weight: 700;
+            letter-spacing: .2px;
+        }
+
+        #refresh {
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            border-radius: 8px;
+            padding: 6px 8px;
+            cursor: pointer;
+        }
+
+        #refresh:hover {
+            color: var(--text);
+            border-color: var(--chip-hover);
+        }
+
+        .current {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin: 8px 0 12px;
+        }
+
+        .current .label {
+            color: var(--muted);
+        }
+
+        .current .value {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: .3px;
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .row.stretch>* {
+            flex: 1;
+        }
+
+        button.primary,
+        button.ghost,
+        button.reset {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 12px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        button.primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        button.primary:hover {
+            background: var(--accent-weak);
+        }
+
+        button.reset {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        button.reset:hover {
+            background: rgba(37, 99, 235, .12);
+        }
+
+        button.ghost {
+            background: var(--chip);
+            color: var(--text);
+        }
+
+        button.ghost:hover {
+            background: var(--chip-hover);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 6px 0 2px;
+        }
+
+        .chip {
+            padding: 6px 10px;
+            border-radius: 999px;
+            cursor: pointer;
+            background: var(--chip);
+            color: var(--text);
+            border: 1px solid var(--border);
+            font-weight: 600;
+            user-select: none;
+        }
+
+        .chip:hover {
+            background: var(--chip-hover);
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .ok {
+            color: var(--ok);
+            font-weight: 700;
+        }
+
+        .kbd {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12px;
+            padding: 1px 4px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <header>
+            <div class="title">AIIT Speed Controller</div>
+            <button id="refresh" title="現在の速度を再取得">⟳ 更新</button>
+        </header>
+
+        <div class="current">
+            <div class="label">現在</div>
+            <div id="current" class="value">× —</div>
+        </div>
+
+        <div class="row stretch">
+            <button id="down" class="primary" aria-label="速度を下げる">−</button>
+            <button id="reset" class="reset" aria-label="1.0倍に戻す">1.0</button>
+            <button id="up" class="primary" aria-label="速度を上げる">＋</button>
+        </div>
+
+        <div class="chips" aria-label="プリセット">
+            <div class="chip" data-rate="0.75">0.75</div>
+            <div class="chip" data-rate="1.25">1.25</div>
+            <div class="chip" data-rate="1.5">1.5</div>
+            <div class="chip" data-rate="2">2</div>
+            <div class="chip" data-rate="2.5">2.5</div>
+            <div class="chip" data-rate="3">3</div>
+            <div class="chip" data-rate="4">4</div>
+        </div>
+
+        <div class="row">
+            <input id="manual" type="number" step="0.01" min="0.1" max="16" placeholder="任意倍速（例: 0.7 / 2.25 / 8）">
+            <button id="apply" class="ghost">適用</button>
+        </div>
+
+        <div class="hint">
+            <span class="ok">ヒント:</span>
+            <span class="kbd">↑</span>/<span class="kbd">↓</span> で ±、<span class="kbd">0</span> で 1.0 に戻せます。
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
