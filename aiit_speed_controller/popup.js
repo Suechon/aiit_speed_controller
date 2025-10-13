@@ -3,6 +3,7 @@ const STEP = 0.5;        // ±の刻み
 const KEEP_SECONDS = 6;  // 粘り時間短めで体感を上げる
 const MIN_RATE = 0.25;
 const MAX_RATE = 6.0;
+const TIME_STEP = 5;
 
 // ===== キャッシュ（今のタブ内だけ）=====
 let cachedFrameIds = null;
@@ -237,7 +238,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+
     $("refresh").addEventListener("click", refreshRate);
+
+    $("seekBack")?.addEventListener("click", async () => {
+        try {
+            await runOnlyOnFramesWithVideo(injectedSeekController, [-TIME_STEP]);
+        } catch (err) {
+            console.warn("[KalturaSpeed] seekBack failed:", err);
+            setStatus("⚠️ 動画が見つかりません。再生を開始してからもう一度。");
+        }
+    });
+
+    $("seekFwd")?.addEventListener("click", async () => {
+        try {
+            await runOnlyOnFramesWithVideo(injectedSeekController, [TIME_STEP]);
+        } catch (err) {
+            console.warn("[KalturaSpeed] seekFwd failed:", err);
+            setStatus("⚠️ 動画が見つかりません。再生を開始してからもう一度。");
+        }
+    });
 
     // 初期表示は実測
     refreshRate();
@@ -261,7 +281,14 @@ document.addEventListener('keydown', (e) => {
     } else if (e.key === '0') {
         e.preventDefault();
         applyOptimistic(1.0);
+    } else if (e.key.toLowerCase() === 'j') {
+        e.preventDefault();
+        runOnlyOnFramesWithVideo(injectedSeekController, [-TIME_STEP]).catch(()=>{});
+    } else if (e.key.toLowerCase() === 'l') {
+        e.preventDefault();
+        runOnlyOnFramesWithVideo(injectedSeekController, [TIME_STEP]).catch(()=>{});
     }
+
 });
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -280,7 +307,6 @@ function setStatus(message = "") {
     if (!el) {
         el = document.createElement("div");
         el.id = id;
-        // 見やすいがクリックを邪魔しない（pointer-events:none）
         el.style.cssText = `
       position: absolute;
       right: 12px;
@@ -296,4 +322,43 @@ function setStatus(message = "") {
     }
     el.textContent = message;
     el.style.opacity = message ? "0.9" : "0";
+}
+
+/* -------------------------------------------
+ * 時間シーク（ページ側で実行）
+ * -----------------------------------------*/
+function injectedSeekController(deltaSec = 0) {
+    const delta = Number(deltaSec) || 0;
+    const vids = document.querySelectorAll('video');
+    let touched = 0;
+
+    vids.forEach(v => {
+        try {
+            const cur = Number(v.currentTime || 0);
+            const dur = Number(v.duration || Infinity);
+            const next = Math.max(0, Math.min(isFinite(dur) ? dur : cur + delta, cur + delta));
+            if (!Number.isNaN(next)) {
+                v.currentTime = next;
+                touched++;
+            }
+        } catch {}
+    });
+
+    // 画面右下に小さなバッジを一瞬出す（速度バッジと被らない位置）
+    try {
+        const id = '__kaltura_seek_badge';
+        let el = document.getElementById(id);
+        if (!el) {
+            el = document.createElement('div');
+            el.id = id;
+            el.style.cssText = 'position:fixed;right:12px;bottom:48px;z-index:2147483647;padding:6px 10px;background:rgba(0,0,0,.6);color:#fff;border-radius:8px;font:14px system-ui';
+            document.documentElement.appendChild(el);
+        }
+        const sign = delta >= 0 ? '+' : '';
+        el.textContent = `${sign}${delta}s`;
+        clearTimeout(el.__t);
+        el.__t = setTimeout(() => el.remove(), 800);
+    } catch {}
+
+    return touched; // 触れたvideo本数（デバッグ用）
 }

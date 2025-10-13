@@ -3,6 +3,7 @@ const STEP = 0.25;
 const MAX_RATE = 4.0;
 const MIN_RATE = 0.25;
 const DEFAULT_RATE = 1.0;
+const TIME_STEP = 5;
 
 let lastVideo = null;
 
@@ -61,6 +62,39 @@ function scanVideos() {
     document.querySelectorAll("video").forEach(wireVideo);
 }
 
+
+// 進める戻す
+function safeSeek(v, deltaSec) {
+    if (!v) return;
+    const cur = Number(v.currentTime || 0);
+    const dur = Number(v.duration || Infinity);
+    const next = clamp(cur + Number(deltaSec || 0), 0, isFinite(dur) ? dur : cur + Number(deltaSec || 0));
+    try { v.currentTime = next; } catch {}
+    showSeekBadge(deltaSec);
+}
+
+let seekBadgeTimer = null;
+function showSeekBadge(deltaSec) {
+    const id = "__kaltura_seek_badge";
+    let el = document.getElementById(id);
+    if (!el) {
+        el = document.createElement("div");
+        el.id = id;
+        el.style.cssText = `
+          position: fixed; right: 12px; bottom: 48px; z-index: 2147483647;
+          padding: 6px 10px; background: rgba(0,0,0,.6); color: #fff;
+          font: 14px/1.2 system-ui, sans-serif; border-radius: 8px;
+          pointer-events: none;
+        `;
+        document.documentElement.appendChild(el);
+    }
+    const sign = (Number(deltaSec) >= 0) ? "+" : "";
+    el.textContent = `${sign}${Number(deltaSec)}s`;
+    clearTimeout(seekBadgeTimer);
+    seekBadgeTimer = setTimeout(() => el.remove(), 800);
+}
+
+ 
 // 動的生成にも対応
 const mo = new MutationObserver(() => scanVideos());
 mo.observe(document.documentElement, { subtree: true, childList: true });
@@ -75,6 +109,8 @@ window.addEventListener("keydown", (e) => {
     if (e.key === "D") safeSetRate(v, (v.playbackRate || 1.0) + STEP);
     if (e.key === "S") safeSetRate(v, (v.playbackRate || 1.0) - STEP);
     if (e.key === "R") safeSetRate(v, DEFAULT_RATE);
+    if (e.key.toLowerCase() === "l")  safeSeek(v, +TIME_STEP); e.preventDefault(); 
+    if (e.key.toLowerCase() === "j") safeSeek(v, -TIME_STEP); e.preventDefault(); 
 });
 
 // ポップアップや背景からのメッセージ
@@ -98,5 +134,10 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     } else if (msg.type === "SET_INITIAL") {
         chrome.storage.sync.set({ initialRate: Number(msg.value) || 1.0 });
         sendResponse?.({ ok: true });
-    }
+    } else if (msg.type === "SEEK") {
+        safeSeek(v, Number(msg.delta || 0));
+        sendResponse?.({ ok: true });
+    } 
+
+    
 });
